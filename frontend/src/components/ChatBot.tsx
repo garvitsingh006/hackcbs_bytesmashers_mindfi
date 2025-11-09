@@ -83,7 +83,7 @@ export function ChatBot({ isOpen, onClose }: ChatBotProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-40 w-96 max-h-[600px] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-300">
+    <div className="fixed bottom-4 right-4 z-40 w-96 max-h-[600px] bg-gray-800 rounded-2xl shadow-2xl border border-gray-700 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-300">
       <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-cyan-600">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
@@ -102,7 +102,7 @@ export function ChatBot({ isOpen, onClose }: ChatBotProps) {
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-900">
         {messages.map((message) => (
           <div
             key={message.id}
@@ -112,7 +112,7 @@ export function ChatBot({ isOpen, onClose }: ChatBotProps) {
               className={`max-w-[80%] rounded-2xl px-4 py-2 ${
                 message.type === 'user'
                   ? 'bg-blue-600 text-white rounded-br-none'
-                  : 'bg-gray-100 text-gray-800 rounded-bl-none'
+                  : 'bg-gray-700 text-white rounded-bl-none'
               }`}
             >
               <p className="whitespace-pre-wrap">{message.text}</p>
@@ -125,7 +125,7 @@ export function ChatBot({ isOpen, onClose }: ChatBotProps) {
         <div ref={messagesEndRef} />
         {isLoading && (
           <div className="flex justify-start">
-            <div className="bg-gray-100 rounded-2xl px-4 py-2 rounded-bl-none">
+            <div className="bg-gray-700 rounded-2xl px-4 py-2 rounded-bl-none">
               <div className="flex space-x-2">
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
@@ -136,15 +136,15 @@ export function ChatBot({ isOpen, onClose }: ChatBotProps) {
         )}
       </div>
 
-      <div className="border-t border-gray-200 p-4 bg-white">
-        <div className="flex items-center p-4 border-t border-gray-200">
+      <div className="border-t border-gray-700 p-4 bg-gray-800">
+        <div className="flex items-center p-4 border-t border-gray-700">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask me about budgeting, savings, or investments..."
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="flex-1 px-4 py-2 bg-gray-700 border border-gray-600 text-white placeholder-gray-400 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             disabled={isLoading}
           />
           <button

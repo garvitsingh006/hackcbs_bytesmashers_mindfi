@@ -84,13 +84,13 @@ export function EmergencyFundModal({ isOpen, onClose, onUnlock }: EmergencyFundM
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+      <div className="bg-gray-800 rounded-2xl max-w-md w-full p-6 shadow-2xl">
         <div className="flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full mx-auto mb-4">
           <AlertCircle className="w-8 h-8 text-orange-600" />
         </div>
 
-        <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">Emergency Fund Access</h2>
-        <p className="text-gray-600 text-center mb-6">
+        <h2 className="text-2xl font-bold text-white text-center mb-2">Emergency Fund Access</h2>
+        <p className="text-gray-300 text-center mb-6">
           Your emergency fund will be immediately available. A notification will be sent to your linked accounts about this transaction.
         </p>
 
@@ -99,7 +99,7 @@ export function EmergencyFundModal({ isOpen, onClose, onUnlock }: EmergencyFundM
             <strong>Available Emergency Fund:</strong> ₹{userCaps?.emergency_fund?.toLocaleString('en-IN') || '0'}
           </p>
           <div>
-            <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="amount" className="block text-sm font-medium text-gray-300 mb-1">
               Amount (₹)
             </label>
             <input
@@ -108,7 +108,7 @@ export function EmergencyFundModal({ isOpen, onClose, onUnlock }: EmergencyFundM
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="Enter amount"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 text-white placeholder-gray-400 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
               disabled={isSubmitting}
               min="1"
               max={userCaps?.emergency_fund}
@@ -118,7 +118,7 @@ export function EmergencyFundModal({ isOpen, onClose, onUnlock }: EmergencyFundM
 
         <div className="space-y-4 mb-4">
           <div>
-            <label htmlFor="emergency-confirm" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="emergency-confirm" className="block text-sm font-medium text-gray-300 mb-1">
               Type "confirm" to proceed
             </label>
             <input
@@ -130,14 +130,14 @@ export function EmergencyFundModal({ isOpen, onClose, onUnlock }: EmergencyFundM
                 setError('');
               }}
               placeholder="Type 'confirm' to proceed"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              className="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-white placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
             />
           </div>
 
           <div>
-            <label htmlFor="emergency-reason" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="emergency-reason" className="block text-sm font-medium text-gray-300 mb-1">
               Purpose of emergency funds
-              <span className="text-xs text-gray-500 ml-1">(This will be shared with your linked accounts)</span>
+              <span className="text-xs text-gray-400 ml-1">(This will be shared with your linked accounts)</span>
             </label>
             <textarea
               id="emergency-reason"
@@ -148,7 +148,7 @@ export function EmergencyFundModal({ isOpen, onClose, onUnlock }: EmergencyFundM
               }}
               placeholder="Please describe what you need these funds for..."
               rows={3}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              className="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-white placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
             />
           </div>
 
@@ -162,7 +162,7 @@ export function EmergencyFundModal({ isOpen, onClose, onUnlock }: EmergencyFundM
         <div className="flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+            className="flex-1 px-4 py-3 bg-gray-700 text-gray-300 rounded-lg font-medium hover:bg-gray-600 transition-colors"
           >
             Cancel
           </button>

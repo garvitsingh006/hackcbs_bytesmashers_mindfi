@@ -4,7 +4,7 @@ import { toast } from 'react-hot-toast';
 import { Header } from './components/Header';
 import { EmergencyFundModal } from './components/EmergencyFundModal';
 import { ChatBot } from './components/ChatBot';
-import { SpendingChart } from './components/SpendingChart';
+import SpendingChartStatic  from './components/SpendingChart';
 import { useUser } from './contexts/UserContext';
 import api from './services/api';
 
@@ -198,7 +198,7 @@ function App() {
   const categoryCapsList = parseCategoryCaps();
 
   return (
-    <div className="min-h-screen bg-gray-50" style={{ fontFamily: 'Inter, sans-serif' }}>
+    <div className="min-h-screen bg-gray-900" style={{ fontFamily: 'Inter, sans-serif' }}>
       <Header
         onOpenChatbot={toggleChatbot}
         onOpenEmergencyFund={() => setIsEmergencyFundOpen(true)}
@@ -219,11 +219,11 @@ function App() {
         ) : (
           <>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
-                <div className="text-sm text-gray-500 mb-2" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>
+              <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
+                <div className="text-sm text-gray-400 mb-2" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>
                   Account Balance
                 </div>
-                <div className="text-4xl font-semibold text-gray-900 mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                <div className="text-4xl font-semibold text-white mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>
                   {userCaps?.balance !== undefined ? formatCurrency(userCaps.balance) : '₹0'}
                 </div>
                 <button
@@ -235,8 +235,8 @@ function App() {
                 </button>
               </div>
 
-              <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 p-6">
-                <div className="text-sm text-gray-500 mb-2" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>
+              <div className="lg:col-span-2 bg-gray-800 rounded-xl border border-gray-700 p-6">
+                <div className="text-sm text-gray-400 mb-2" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>
                   Analytics
                 </div>
                 <div className="grid grid-cols-3 gap-4">
@@ -245,9 +245,9 @@ function App() {
                       <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                       </svg>
-                      <span className="text-xs text-gray-500" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>Total Value</span>
+                      <span className="text-xs text-gray-400" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>Total Value</span>
                     </div>
-                    <div className="text-2xl font-semibold text-gray-900" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                    <div className="text-2xl font-semibold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>
                       {formatCurrency(monthlySpent)}
                     </div>
                   </div>
@@ -256,9 +256,9 @@ function App() {
                       <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
-                      <span className="text-xs text-gray-500" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>Volume</span>
+                      <span className="text-xs text-gray-400" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>Volume</span>
                     </div>
-                    <div className="text-2xl font-semibold text-gray-900" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                    <div className="text-2xl font-semibold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>
                       {transactions.length}
                     </div>
                   </div>
@@ -267,9 +267,9 @@ function App() {
                       <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                       </svg>
-                      <span className="text-xs text-gray-500" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>Reckless</span>
+                      <span className="text-xs text-gray-400" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>Reckless</span>
                     </div>
-                    <div className="text-2xl font-semibold text-gray-900" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                    <div className="text-2xl font-semibold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>
                       {recklessCount}
                     </div>
                   </div>
@@ -278,17 +278,17 @@ function App() {
             </div>
 
             {showTransactionForm && (
-              <form onSubmit={handleTransactionSubmit} className="bg-white p-6 rounded-xl border border-gray-200 mb-6">
-                <h3 className="text-lg font-semibold mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>Add New Transaction</h3>
+              <form onSubmit={handleTransactionSubmit} className="bg-gray-800 p-6 rounded-xl border border-gray-700 mb-6">
+                <h3 className="text-lg font-semibold text-white mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>Add New Transaction</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1" style={{ fontFamily: 'Inter, sans-serif' }}>Amount (₹)</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-1" style={{ fontFamily: 'Inter, sans-serif' }}>Amount (₹)</label>
                     <input
                       type="number"
                       name="amount"
                       value={transactionData.amount}
                       onChange={handleInputChange}
-                      className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                      className="w-full p-2.5 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                       required
                       min="0"
                       step="0.01"
@@ -296,12 +296,12 @@ function App() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1" style={{ fontFamily: 'Inter, sans-serif' }}>Category</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-1" style={{ fontFamily: 'Inter, sans-serif' }}>Category</label>
                     <select
                       name="category"
                       value={transactionData.category}
                       onChange={handleInputChange}
-                      className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                      className="w-full p-2.5 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                       required
                       style={{ fontFamily: 'Inter, sans-serif' }}
                     >
@@ -326,13 +326,13 @@ function App() {
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
-                <h3 className="text-sm font-medium text-gray-500 mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>Spending vs Caps</h3>
+              <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
+                <h3 className="text-sm font-medium text-gray-400 mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>Spending vs Caps</h3>
                 <div className="space-y-4">
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-gray-700" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>Monthly Spending</span>
-                      <span className={`text-sm font-semibold ${isMonthlyCapExceeded ? 'text-red-600' : 'text-gray-900'}`} style={{ fontFamily: 'Poppins, sans-serif' }}>
+                      <span className="text-sm text-gray-300" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>Monthly Spending</span>
+                      <span className={`text-sm font-semibold ${isMonthlyCapExceeded ? 'text-red-600' : 'text-white'}`} style={{ fontFamily: 'Poppins, sans-serif' }}>
                         {formatCurrency(monthlySpent)} / {formatCurrency(userCaps?.monthly_income || 0)}
                       </span>
                     </div>
@@ -345,8 +345,8 @@ function App() {
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-gray-700" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>Weekly Spending</span>
-                      <span className={`text-sm font-semibold ${isWeeklyCapExceeded ? 'text-red-600' : 'text-gray-900'}`} style={{ fontFamily: 'Poppins, sans-serif' }}>
+                      <span className="text-sm text-gray-300" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>Weekly Spending</span>
+                      <span className={`text-sm font-semibold ${isWeeklyCapExceeded ? 'text-red-600' : 'text-white'}`} style={{ fontFamily: 'Poppins, sans-serif' }}>
                         {formatCurrency(weeklySpent)} / {formatCurrency(userCaps?.weekly_cap || 0)}
                       </span>
                     </div>
@@ -360,77 +360,77 @@ function App() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
-                <h3 className="text-sm font-medium text-gray-500 mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>Category Caps</h3>
+              <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
+                <h3 className="text-sm font-medium text-gray-400 mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>Category Caps</h3>
                 <div className="space-y-3">
                   {categoryCapsList.length > 0 ? (
                     categoryCapsList.map(([category, limit]) => (
                       <div key={category} className="flex items-center justify-between">
-                        <span className="text-sm text-gray-700" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>{category}</span>
-                        <span className="text-sm font-semibold text-gray-900" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                        <span className="text-sm text-gray-300" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>{category}</span>
+                        <span className="text-sm font-semibold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>
                           {formatCurrency(limit)}
                         </span>
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-gray-500" style={{ fontFamily: 'Inter, sans-serif' }}>No category caps set</p>
+                    <p className="text-sm text-gray-400" style={{ fontFamily: 'Inter, sans-serif' }}>No category caps set</p>
                   )}
                 </div>
               </div>
             </div>
 
             <div className="mb-6">
-              <SpendingChart transactions={transactions} />
+              <SpendingChartStatic />
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900" style={{ fontFamily: 'Inter, sans-serif' }}>Recent Transactions</h3>
+            <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-700">
+                <h3 className="text-lg font-semibold text-white" style={{ fontFamily: 'Inter, sans-serif' }}>Recent Transactions</h3>
               </div>
 
               {transactions.length === 0 ? (
-                <div className="p-8 text-center text-gray-500" style={{ fontFamily: 'Inter, sans-serif' }}>
+                <div className="p-8 text-center text-gray-400" style={{ fontFamily: 'Inter, sans-serif' }}>
                   No transactions found
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-gray-50 border-b border-gray-200">
+                    <thead className="bg-gray-700 border-b border-gray-600">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style={{ fontFamily: 'Inter, sans-serif' }}>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" style={{ fontFamily: 'Inter, sans-serif' }}>
                           Date
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style={{ fontFamily: 'Inter, sans-serif' }}>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" style={{ fontFamily: 'Inter, sans-serif' }}>
                           Category
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style={{ fontFamily: 'Inter, sans-serif' }}>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" style={{ fontFamily: 'Inter, sans-serif' }}>
                           Merchant
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style={{ fontFamily: 'Inter, sans-serif' }}>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" style={{ fontFamily: 'Inter, sans-serif' }}>
                           Amount
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style={{ fontFamily: 'Inter, sans-serif' }}>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" style={{ fontFamily: 'Inter, sans-serif' }}>
                           Status
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-gray-800 divide-y divide-gray-700">
                       {transactions.map((transaction) => (
-                        <tr key={transaction.transaction_id} className="hover:bg-gray-50 transition-colors">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900" style={{ fontFamily: 'Inter, sans-serif' }}>
+                        <tr key={transaction.transaction_id} className="hover:bg-gray-700 transition-colors">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white" style={{ fontFamily: 'Inter, sans-serif' }}>
                             {transaction.date ? new Date(transaction.date).toLocaleDateString('en-US', {
                               year: 'numeric',
                               month: 'short',
                               day: 'numeric'
                             }) : 'N/A'}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>
                             {transaction.category}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700" style={{ fontFamily: 'Inter, sans-serif' }}>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300" style={{ fontFamily: 'Inter, sans-serif' }}>
                             {transaction.merchant || 'Unknown'}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>
                             {formatCurrency(transaction.amount)}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
