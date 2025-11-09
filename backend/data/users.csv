@@ -1,0 +1,6 @@
+user_id,monthly_income,weekly_cap,max_single_spend,category_caps
+U001,50000,12000,5000,"{'Food': 2000, 'Shopping': 1500, 'Travel': 3000, 'Entertainment': 2500}"
+U002,45000,11000,4500,"{'Food': 1800, 'Shopping': 1300, 'Travel': 2800, 'Entertainment': 2200}"
+U003,60000,15000,6000,"{'Food': 2500, 'Shopping': 2000, 'Travel': 3500, 'Entertainment': 3000}"
+U004,70000,18000,7000,"{'Food': 3000, 'Shopping': 2500, 'Travel': 4000, 'Entertainment': 3500}"
+U005,55000,14000,5500,"{'Food': 2200, 'Shopping': 1800, 'Travel': 3200, 'Entertainment': 2700}"
