@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { AlertCircle, Unlock, Loader2 } from 'lucide-react';
 import { useUser } from '../contexts/UserContext';
 import { useEmergencyFund } from '../hooks/useEmergencyFund';
@@ -16,10 +16,9 @@ export function EmergencyFundModal({ isOpen, onClose, onUnlock }: EmergencyFundM
   const [amount, setAmount] = useState('');
   const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [emergencyResponse, setEmergencyResponse] = useState<any>(null);
   const [error, setError] = useState('');
   const { userId, userCaps } = useUser();
-  const { withdrawEmergencyFund, saving, error: apiError } = useEmergencyFund(userId || '');
+  const { withdrawEmergencyFund } = useEmergencyFund(userId || '');
 
   if (!isOpen) return null;
 
@@ -54,16 +53,14 @@ export function EmergencyFundModal({ isOpen, onClose, onUnlock }: EmergencyFundM
       setError('');
       
       // Call the emergency alert endpoint
-      const response = await api.post('/api/v1/others/emergency/alert', {
+      await api.post('/api/v1/others/emergency/alert', {
         user_id: userId,
         amount: Number(amount),
-        emergency_reason: reason // Using the separate reason field
+        emergency_reason: reason
       });
-      console.log(response.data.data)
-      setEmergencyResponse(response.data.data);
-      
+
       // If approved, withdraw the amount and show success toast
-        await withdrawEmergencyFund(Number(amount));
+      await withdrawEmergencyFund(Number(amount));
         toast.success('Emergency fund request approved!', {
           duration: 4000,
           position: 'top-center',

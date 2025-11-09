@@ -1,65 +1,49 @@
 import { useState, useEffect } from 'react';
-import { Activity, ShieldCheck, AlertTriangle, TrendingDown, Loader2, CheckCircle, Plus, X } from 'lucide-react';
-import { SavingsChatbot } from './components/SavingsChatbot';
+import { Loader2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { Header } from './components/Header';
-import { TransactionCard } from './components/TransactionCard';
 import { EmergencyFundModal } from './components/EmergencyFundModal';
 import { ChatBot } from './components/ChatBot';
-import { StatsCard } from './components/StatsCard';
-import { CategoryCaps } from './components/CategoryCaps';
+import { SpendingChart } from './components/SpendingChart';
 import { useUser } from './contexts/UserContext';
 import api from './services/api';
 
 function App() {
-  const { 
-    transactions, 
-    loading, 
-    error, 
-    userCaps, 
+  const {
+    transactions,
+    loading,
+    error,
+    userCaps,
     fetchTransactions,
-    userId 
+    userId
   } = useUser();
-  
-  const [isSavingsChatbotOpen, setIsSavingsChatbotOpen] = useState(false);
-  const [categoryCaps, setCategoryCaps] = useState<{ category_caps?: Record<string, number> } | null>(null);
-  
-  // Calculate months since account creation
-  const monthsActive = 3; // This would come from user data
 
-  // Toggle chatbot visibility
+  const [categoryCaps, setCategoryCaps] = useState<{ category_caps?: Record<string, number> } | null>(null);
+  const monthsActive = 3;
+  const [showChatbot, setShowChatbot] = useState(false);
   const toggleChatbot = () => setShowChatbot(!showChatbot);
 
-  // Fetch category caps when component mounts
- useEffect(() => {
-  const fetchCategoryCaps = async () => {
-    if (!userId) return;
-    
-    try {
-      console.log('Fetching user caps...');
-      const response = await api.get(`/api/v1/users/caps/${userId}`);
-      console.log('Raw caps response:', response);
+  useEffect(() => {
+    const fetchCategoryCaps = async () => {
+      if (!userId) return;
 
-      const capsData = response.data?.data;  // << FIXED
-      console.log('Caps data:', capsData);
-      
-      if (capsData?.category_caps) {
-        console.log('Raw category_caps:', capsData.category_caps);
-        setCategoryCaps(capsData);
-      } else {
-        console.log('No valid category_caps found in response');
-        setCategoryCaps({ category_caps: {} });
+      try {
+        const response = await api.get(`/api/v1/users/caps/${userId}`);
+        const capsData = response.data?.data;
+
+        if (capsData?.category_caps) {
+          setCategoryCaps(capsData);
+        } else {
+          setCategoryCaps({ category_caps: {} });
+        }
+      } catch (error) {
+        console.error('Error fetching category caps:', error);
       }
-    } catch (error) {
-      console.error('Error fetching category caps:', error);
-    }
-  };
+    };
 
-  fetchCategoryCaps();
-}, [userId]);
+    fetchCategoryCaps();
+  }, [userId]);
 
-
-  // Calculate monthly and weekly spending
   const now = new Date();
   const currentMonth = now.getMonth();
   const currentYear = now.getFullYear();
@@ -69,7 +53,7 @@ function App() {
   const monthlySpent = transactions
     .filter(tx => {
       const txDate = new Date(tx.date);
-      return txDate.getMonth() === currentMonth && 
+      return txDate.getMonth() === currentMonth &&
              txDate.getFullYear() === currentYear;
     })
     .reduce((sum, tx) => sum + (tx.amount || 0), 0);
@@ -81,18 +65,14 @@ function App() {
     })
     .reduce((sum, tx) => sum + (tx.amount || 0), 0);
 
-  // Calculate emergency funds as 2x monthly income
   const emergencyFunds = userCaps?.monthly_income ? userCaps.monthly_income * 2 : 0;
-  // Update userCaps with calculated emergency funds if not set
   if (userCaps && !userCaps.emergency_fund && userCaps.monthly_income) {
     userCaps.emergency_fund = emergencyFunds;
   }
-  
-  // Check if caps are exceeded
+
   const isMonthlyCapExceeded = userCaps?.monthly_income && monthlySpent > userCaps.monthly_income;
   const isWeeklyCapExceeded = userCaps?.weekly_cap && weeklySpent > userCaps.weekly_cap;
-  
-  // Format currency to Indian Rupees
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -101,9 +81,6 @@ function App() {
     }).format(amount);
   };
 
-  // State for modals
-  const [showChatbot, setShowChatbot] = useState(false);
-  const [emergencyUnlocked, setEmergencyUnlocked] = useState(false);
   const [isEmergencyFundOpen, setIsEmergencyFundOpen] = useState(false);
   const [showTransactionForm, setShowTransactionForm] = useState(false);
   const [transactionData, setTransactionData] = useState({
@@ -125,7 +102,7 @@ function App() {
 
   const handleTransactionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!transactionData.category) {
       toast.error('Please select a category');
       return;
@@ -137,14 +114,13 @@ function App() {
     }
 
     const loadingToast = toast.loading('Adding transaction...');
-    
+
     try {
       const now = new Date();
       const timestamp = formatTimestamp(now);
-      
-      // Prepare transaction data with all required fields
+
       const transactionPayload = {
-        user_id: 'U001', // Hardcoded user ID
+        user_id: 'U001',
         amount: Number(transactionData.amount),
         timestamp: timestamp,
         category: transactionData.category,
@@ -152,36 +128,27 @@ function App() {
         transaction_id: `tx_${Date.now()}`,
         type: 'expense'
       };
-      
-      console.log('Sending transaction:', transactionPayload);
-      
-      // Send the transaction data
-      const response = await api.put('/api/v1/others/classify', transactionPayload);
-      
-      console.log('Transaction response:', response.data);
-      
-      // If we get here, the transaction was successful
+
+      await api.put('/api/v1/others/classify', transactionPayload);
+
       toast.dismiss(loadingToast);
       toast.success('Transaction added successfully!');
-      
-      // Update the UI state
+
       setShowTransactionForm(false);
-      
-      // Reset form
+
       setTransactionData({
         timestamp: '',
         category: '',
         amount: 0,
         is_reckless: false
       });
-      
-      // Refresh transactions if needed
+
       if (fetchTransactions) {
         await fetchTransactions(userId || 'U001');
       }
-      
-      return; // Important: Exit the function after successful transaction
-      
+
+      return;
+
     } catch (error) {
       console.error('Error adding transaction:', error);
       toast.error('Failed to add transaction. Please try again.');
@@ -197,32 +164,50 @@ function App() {
   };
 
   const recklessCount = transactions.filter(t => t.is_reckless).length;
-  const totalSpent = transactions.reduce((sum, t) => sum + t.amount, 0);
 
   const handleEmergencyUnlock = () => {
-    setEmergencyUnlocked(true);
     setTimeout(() => {
       setIsEmergencyFundOpen(false);
     }, 2000);
   };
 
+  const parseCategoryCaps = (): Array<[string, number]> => {
+    if (!categoryCaps?.category_caps) return [];
+
+    try {
+      const caps: any = categoryCaps.category_caps;
+      let parsedCaps: Record<string, number> = {};
+
+      if (caps instanceof Map) {
+        parsedCaps = Object.fromEntries(caps);
+      } else if (typeof caps === 'string') {
+        parsedCaps = JSON.parse(caps.trim());
+      } else if (typeof caps === 'object' && caps !== null) {
+        parsedCaps = { ...caps };
+      }
+
+      return Object.entries(parsedCaps)
+        .filter(([, amount]) => amount !== undefined && amount !== null)
+        .map(([category, amount]) => [String(category), Number(amount) || 0]);
+    } catch (error) {
+      console.error('Error parsing category caps:', error);
+      return [];
+    }
+  };
+
+  const categoryCapsList = parseCategoryCaps();
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <Header 
+    <div className="min-h-screen bg-gray-50" style={{ fontFamily: 'Inter, sans-serif' }}>
+      <Header
         onOpenChatbot={toggleChatbot}
         onOpenEmergencyFund={() => setIsEmergencyFundOpen(true)}
         monthsActive={monthsActive}
       />
-      
-      {/* Chatbot Modal */}
+
       <ChatBot isOpen={showChatbot} onClose={toggleChatbot} />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Transaction Monitor</h2>
-          <p className="text-gray-600">AI-powered financial safety for smarter spending</p>
-        </div>
-
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {loading ? (
           <div className="flex justify-center items-center py-8">
             <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
@@ -233,102 +218,92 @@ function App() {
           </div>
         ) : (
           <>
-            {/* Spending Caps Summary */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-              <div className={`p-4 rounded-lg border-2 ${isMonthlyCapExceeded ? 'bg-red-50 border-red-200' : 'bg-white border-gray-100'}`}>
-                <div className="flex justify-between items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+              <div className="bg-white rounded-xl border border-gray-200 p-6">
+                <div className="text-sm text-gray-500 mb-2" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>
+                  Account Balance
+                </div>
+                <div className="text-4xl font-semibold text-gray-900 mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                  {userCaps?.balance !== undefined ? formatCurrency(userCaps.balance) : '₹0'}
+                </div>
+                <button
+                  onClick={() => setShowTransactionForm(!showTransactionForm)}
+                  className="w-full mt-2 px-4 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
+                  style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600 }}
+                >
+                  {showTransactionForm ? 'Cancel' : 'Add Transaction'}
+                </button>
+              </div>
+
+              <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 p-6">
+                <div className="text-sm text-gray-500 mb-2" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>
+                  Analytics
+                </div>
+                <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500">Monthly Spending</h3>
-                    <p className="text-2xl font-bold text-gray-900">
+                    <div className="flex items-center gap-2 mb-1">
+                      <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                      </svg>
+                      <span className="text-xs text-gray-500" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>Total Value</span>
+                    </div>
+                    <div className="text-2xl font-semibold text-gray-900" style={{ fontFamily: 'Poppins, sans-serif' }}>
                       {formatCurrency(monthlySpent)}
-                      {userCaps?.monthly_income && (
-                        <span className="text-sm font-normal text-gray-500"> / {formatCurrency(userCaps.monthly_income)}</span>
-                      )}
-                    </p>
-                    {isMonthlyCapExceeded && (
-                      <p className="text-sm text-red-600 mt-1">
-                        <span className="font-medium">Exceeded by:</span> {formatCurrency(monthlySpent - (userCaps?.monthly_income || 0))}
-                      </p>
-                    )}
+                    </div>
                   </div>
-                  {isMonthlyCapExceeded ? (
-                    <AlertTriangle className="h-5 w-5 text-red-500" />
-                  ) : (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
-                  )}
-                </div>
-              </div>
-
-              <div className={`p-4 rounded-lg border-2 ${isWeeklyCapExceeded ? 'bg-red-50 border-red-200' : 'bg-white border-gray-100'}`}>
-                <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500">Weekly Spending</h3>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {formatCurrency(weeklySpent)}
-                      {userCaps?.weekly_cap && (
-                        <span className="text-sm font-normal text-gray-500"> / {formatCurrency(userCaps.weekly_cap)}</span>
-                      )}
-                    </p>
-                    {isWeeklyCapExceeded && (
-                      <p className="text-sm text-red-600 mt-1">
-                        <span className="font-medium">Exceeded by:</span> {formatCurrency(weeklySpent - (userCaps?.weekly_cap || 0))}
-                      </p>
-                    )}
+                    <div className="flex items-center gap-2 mb-1">
+                      <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <span className="text-xs text-gray-500" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>Volume</span>
+                    </div>
+                    <div className="text-2xl font-semibold text-gray-900" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                      {transactions.length}
+                    </div>
                   </div>
-                  {isWeeklyCapExceeded ? (
-                    <AlertTriangle className="h-5 w-5 text-red-500" />
-                  ) : (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
-                  )}
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                      </svg>
+                      <span className="text-xs text-gray-500" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>Reckless</span>
+                    </div>
+                    <div className="text-2xl font-semibold text-gray-900" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                      {recklessCount}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Account Balance */}
-            <div className="bg-white border-2 border-gray-100 rounded-xl p-6 mb-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Account Balance</h2>
-              <p className="text-3xl font-bold text-gray-900">
-                {userCaps?.balance !== undefined ? formatCurrency(userCaps.balance) : 'Loading...'}
-              </p>
-            </div>
-
-            {/* Add Transaction Button */}
-            <div className="flex justify-end mb-4">
-              <button
-                onClick={() => setShowTransactionForm(!showTransactionForm)}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                {showTransactionForm ? <X size={18} /> : <Plus size={18} />}
-                {showTransactionForm ? 'Cancel' : 'Add Transaction'}
-              </button>
-            </div>
-
-            {/* Transaction Form */}
             {showTransactionForm && (
-              <form onSubmit={handleTransactionSubmit} className="bg-white p-6 rounded-xl border-2 border-gray-100 mb-6">
-                <h3 className="text-lg font-semibold mb-4">Add New Transaction</h3>
+              <form onSubmit={handleTransactionSubmit} className="bg-white p-6 rounded-xl border border-gray-200 mb-6">
+                <h3 className="text-lg font-semibold mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>Add New Transaction</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Amount (₹)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1" style={{ fontFamily: 'Inter, sans-serif' }}>Amount (₹)</label>
                     <input
                       type="number"
                       name="amount"
                       value={transactionData.amount}
                       onChange={handleInputChange}
-                      className="w-full p-2 border border-gray-300 rounded-md"
+                      className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                       required
                       min="0"
                       step="0.01"
+                      style={{ fontFamily: 'Inter, sans-serif' }}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1" style={{ fontFamily: 'Inter, sans-serif' }}>Category</label>
                     <select
                       name="category"
                       value={transactionData.category}
                       onChange={handleInputChange}
-                      className="w-full p-2 border border-gray-300 rounded-md"
+                      className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                       required
+                      style={{ fontFamily: 'Inter, sans-serif' }}
                     >
                       <option value="">Select a category</option>
                       <option value="Food">Food</option>
@@ -342,91 +317,137 @@ function App() {
                 </div>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600 }}
                 >
                   Add Transaction
                 </button>
               </form>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="space-y-6">
-                <StatsCard
-                  title="Reckless Detected"
-                  value={recklessCount}
-                  icon={AlertTriangle}
-                  color="orange"
-                />
-                <StatsCard
-                  title="Total Spent"
-                  value={`₹${totalSpent.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-                  icon={TrendingDown}
-                  color="red"
-                  onViewTips={toggleChatbot}
-                />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <div className="bg-white rounded-xl border border-gray-200 p-6">
+                <h3 className="text-sm font-medium text-gray-500 mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>Spending vs Caps</h3>
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-gray-700" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>Monthly Spending</span>
+                      <span className={`text-sm font-semibold ${isMonthlyCapExceeded ? 'text-red-600' : 'text-gray-900'}`} style={{ fontFamily: 'Poppins, sans-serif' }}>
+                        {formatCurrency(monthlySpent)} / {formatCurrency(userCaps?.monthly_income || 0)}
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className={`h-2 rounded-full ${isMonthlyCapExceeded ? 'bg-red-500' : 'bg-blue-500'}`}
+                        style={{ width: `${Math.min((monthlySpent / (userCaps?.monthly_income || 1)) * 100, 100)}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-gray-700" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>Weekly Spending</span>
+                      <span className={`text-sm font-semibold ${isWeeklyCapExceeded ? 'text-red-600' : 'text-gray-900'}`} style={{ fontFamily: 'Poppins, sans-serif' }}>
+                        {formatCurrency(weeklySpent)} / {formatCurrency(userCaps?.weekly_cap || 0)}
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className={`h-2 rounded-full ${isWeeklyCapExceeded ? 'bg-red-500' : 'bg-green-500'}`}
+                        style={{ width: `${Math.min((weeklySpent / (userCaps?.weekly_cap || 1)) * 100, 100)}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="space-y-6">
-                <StatsCard
-                  title="Protected"
-                  value={transactions.length - recklessCount}
-                  icon={ShieldCheck}
-                  color="green"
-                />
-                <StatsCard
-                  title="Remaining"
-                  value={`₹${((userCaps?.monthly_income || 0) - totalSpent).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-                  icon={Activity}
-                  color="blue"
-                />
-              </div>
-              <div className="lg:col-span-2">
-                <CategoryCaps categoryCaps={categoryCaps} />
+
+              <div className="bg-white rounded-xl border border-gray-200 p-6">
+                <h3 className="text-sm font-medium text-gray-500 mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>Category Caps</h3>
+                <div className="space-y-3">
+                  {categoryCapsList.length > 0 ? (
+                    categoryCapsList.map(([category, limit]) => (
+                      <div key={category} className="flex items-center justify-between">
+                        <span className="text-sm text-gray-700" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>{category}</span>
+                        <span className="text-sm font-semibold text-gray-900" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                          {formatCurrency(limit)}
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-500" style={{ fontFamily: 'Inter, sans-serif' }}>No category caps set</p>
+                  )}
+                </div>
               </div>
             </div>
 
-            {recklessCount > 0 && (
-              <div className="bg-yellow-100 border-2 border-yellow-300 rounded-xl p-6 mb-6">
-                <div className="flex items-start gap-3">
-                  <AlertTriangle className="w-6 h-6 text-yellow-700 mt-1 flex-shrink-0" />
-                  <div>
-                    <h3 className="text-lg font-bold text-yellow-900 mb-2">Critical Financial Health</h3>
-                    <p className="text-yellow-800 mb-3">
-                      We've noticed some concerning spending patterns. Consider reducing spending on non-essential items and reviewing your budget.
-                    </p>
-                    <button
-                      onClick={toggleChatbot}
-                      className="px-4 py-2 bg-white border border-yellow-600 text-yellow-700 rounded-lg font-medium hover:bg-yellow-50 transition-colors"
-                    >
-                      View Budget Tips
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
+            <div className="mb-6">
+              <SpendingChart transactions={transactions} />
+            </div>
 
-            {emergencyUnlocked && (
-              <div className="bg-green-100 border-2 border-green-300 rounded-xl p-6 mb-6">
-                <div className="flex items-center gap-3">
-                  <ShieldCheck className="w-6 h-6 text-green-700" />
-                  <div>
-                    <h3 className="text-lg font-bold text-green-900">Emergency Fund Unlocked</h3>
-                    <p className="text-green-800">
-                      Your emergency fund of {userCaps?.emergency_fund ? formatCurrency(userCaps.emergency_fund) : '₹0'} is now accessible.
-                    </p>
-                  </div>
-                </div>
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900" style={{ fontFamily: 'Inter, sans-serif' }}>Recent Transactions</h3>
               </div>
-            )}
 
-            <div className="mt-8">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Transactions</h3>
               {transactions.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">No transactions found</p>
+                <div className="p-8 text-center text-gray-500" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  No transactions found
+                </div>
               ) : (
-                <div className="space-y-4">
-                  {transactions.map((transaction) => (
-                    <TransactionCard key={transaction.transaction_id} transaction={transaction} />
-                  ))}
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50 border-b border-gray-200">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style={{ fontFamily: 'Inter, sans-serif' }}>
+                          Date
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style={{ fontFamily: 'Inter, sans-serif' }}>
+                          Category
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style={{ fontFamily: 'Inter, sans-serif' }}>
+                          Merchant
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style={{ fontFamily: 'Inter, sans-serif' }}>
+                          Amount
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style={{ fontFamily: 'Inter, sans-serif' }}>
+                          Status
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {transactions.map((transaction) => (
+                        <tr key={transaction.transaction_id} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900" style={{ fontFamily: 'Inter, sans-serif' }}>
+                            {transaction.date ? new Date(transaction.date).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric'
+                            }) : 'N/A'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>
+                            {transaction.category}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700" style={{ fontFamily: 'Inter, sans-serif' }}>
+                            {transaction.merchant || 'Unknown'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                            {formatCurrency(transaction.amount)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {transaction.is_reckless ? (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>
+                                Reckless
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>
+                                Normal
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               )}
             </div>
@@ -438,17 +459,6 @@ function App() {
         isOpen={isEmergencyFundOpen}
         onClose={() => setIsEmergencyFundOpen(false)}
         onUnlock={handleEmergencyUnlock}
-      />
-
-      <SavingsChatbot
-        isOpen={isSavingsChatbotOpen}
-        onClose={() => setIsSavingsChatbotOpen(false)}
-        savingsData={{
-          monthsActive: 6,
-          totalSaved: 3500,
-          blockedTransactions: 12,
-          warningsPrevented: 24
-        }}
       />
     </div>
   );

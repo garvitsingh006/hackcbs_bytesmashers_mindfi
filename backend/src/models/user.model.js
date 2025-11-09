@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
     max_single_spend: Number,
     emergency_fund: Number,
     category_caps: {type: Map, of: Number},
+    pms_investment: Number,
 });
 
 export const User = mongoose.model("User", userSchema);

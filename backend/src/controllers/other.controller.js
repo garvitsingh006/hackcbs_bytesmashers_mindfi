@@ -166,4 +166,29 @@ const updateFund = asyncHandler(async (req, res, next) => {
 
 })
 
-export { processNewTransaction, triggerEmergencyAlert, get_mindfi50_options, updateFund };
+const  pmsInvest = asyncHandler(async (req, res, next) => {
+    const { user_id, amount } = req.body;
+
+    if (!user_id || !amount) {
+        throw new ApiError(400, "user_id and amount are required");
+    }
+
+    const user = await User.findOne({ user_id });
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    user.pms_investment = (user.pms_investment || 0) + Number(amount);
+    user.balance = user.balance - Number(amount);
+    await user.save();
+
+    return res.status(200).json(
+        new ApiResponse(200, {
+            updated_investment: user.pms_investment,
+            added: Number(amount),
+            message: `₹${amount} added to PMS investment`
+        })
+    );
+})
+
+export { processNewTransaction, triggerEmergencyAlert, get_mindfi50_options, updateFund, pmsInvest };

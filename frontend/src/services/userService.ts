@@ -83,4 +83,18 @@ export const userService = {
       throw error;
     }
   },
+
+  // Invest in PMS
+  investInPMS: async (userId: string, amount: number) => {
+    try {
+      const response = await api.post('/api/v1/others/pms/invest', {
+        user_id: userId,
+        amount: amount
+      });
+      return response.data.data;
+    } catch (error) {
+      console.error('Error investing in PMS:', error);
+      throw error;
+    }
+  }
 };

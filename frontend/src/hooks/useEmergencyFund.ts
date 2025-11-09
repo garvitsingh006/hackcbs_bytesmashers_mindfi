@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { userService } from '../services/userService';
 
 export const useEmergencyFund = (userId: string) => {
   const [saving, setSaving] = useState(false);
